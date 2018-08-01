@@ -1,0 +1,275 @@
+cac câu lệnh về spring jdbc template
+
+Câu lệnh update
+jdbcTemplate.update(sql, staff.getName(), staff.getGender(), staff.getAge(), staff.getCompany(),
+				staff.getPosition(), staff.getAddress(), staff.getEmail(), staff.getStaffid());
+jdbcTemplate.update(sql,giatri);
+
+câu lệnh query ra danh sach
+
+jdbcTemplate.query(sql, new RowMapper<Staff>() {
+	public Staff mapRow(ResultSet rs, int row) throws SQLException {
+		Staff staff = new Staff();
+		staff.setStaffid(rs.getInt(1));
+		staff.setName(rs.getString(2));
+		staff.setGender(rs.getString(3));
+		staff.setAge(rs.getInt(4));
+		staff.setCompany(rs.getString(5));
+		staff.setPosition(rs.getString(6));
+		staff.setAddress(rs.getString(7));
+		staff.setEmail(rs.getString(8));
+		return staff;
+	}
+});
+
+
+jdbcTemplate.query(sql,new RowMapper<Staff>() {
+	public Staff mapRow(ResultSet rs, int row) throws SQLException {
+		Staff staff = new Staff();
+		staff.setEmail(rs.getString(8));
+		return staff;
+	}
+});)
+
+
+hibernate
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.o7planning</groupId>
+  <artifactId>SpringMVCAnnotationForm3</artifactId>
+  <packaging>war</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>SpringMVCAnnotationForm3 Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>SpringMVCAnnotationForm3</finalName>
+  </build>
+</project>
+
+
+các lưu ý khi làm việc với hibernate
+1/ page enti mô tả bảng và được dao/impl gọi lại thông qua file confing 
+
+confing như sau 
+  @Autowired
+  @Bean(name = "sessionFactory")
+  public SessionFactory getSessionFactory(DataSource dataSource) throws Exception {
+      Properties properties = new Properties();
+ 
+      // Xem: ds-hibernate-cfg.properties
+      properties.put("hibernate.dialect", env.getProperty("hibernate.dialect"));
+      properties.put("hibernate.show_sql", env.getProperty("hibernate.show_sql"));
+      properties.put("current_session_context_class", env.getProperty("current_session_context_class"));
+      
+ 
+      LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
+      factoryBean.setPackagesToScan(new String[] { "rikkeisoft.com.entity" });
+      factoryBean.setDataSource(dataSource);
+      factoryBean.setHibernateProperties(properties);
+      factoryBean.afterPropertiesSet();
+      //
+      SessionFactory sf = factoryBean.getObject();
+      return sf;
+  }
+
+
+cách sử dụng hibernate
+1. Khai báo thư viện
+Session session = sessionFactory.getCurrentSession();
+2a. Đối với in ra danh sách
+    Query query = session.createQuery(sql);
+    return query.list();
+2b. Đối với lưu dữ liệu
+    query.persist(applicant);
+2c. Đối với xóa dữ liệu
+    query.delete(applicant);
+2d. Đối với save dữ liệu
+    query.save(applicant);
+
+
+Các lưu ý về structs
+Các cách cấu hình sử dụng structs.xml và Zero Config(Convention hoặc Annotation.)
+
+sử dụng nhiều name space (kiểu như có 5 thư mục teacher, school, student trong WEB-INF) thì cần confing để
+trỏ đúng 
+mặc định ban đầu là trỏ về root
+
+<package name="default1" namespace="/" extends="struts-default">
+  <action name="hello"  class="com.vietjack.Welcome">
+    <result>welcome.jsp</result>
+  </action>
+</package>
+
+<package name="default2" namespace="/first" extends="struts-default">
+  <action name="hello"  class="com.vietjack.Welcome">
+    <result>welcome.jsp</result>
+  </action>
+</package>
+
+<package name="default3" namespace="/second" extends="struts-default">
+  <action name="hello"  class="com.vietjack.Welcome">
+    <result>welcome.jsp</result>
+  </action>
+</package>
+
+
+// note web.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app id="WebApp_ID">
+  <display-name>strutdemo</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>
+
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns="http://java.sun.com/xml/ns/javaee"
+     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+          http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+     id="WebApp_ID" version="3.0">
+  
+    <display-name>Struts2Annotation</display-name>
+  
+  <welcome-file-list>
+      <welcome-file>index.html</welcome-file>
+      <welcome-file>index.htm</welcome-file>
+      <welcome-file>index.jsp</welcome-file>
+      <welcome-file>default.html</welcome-file>
+      <welcome-file>default.htm</welcome-file>
+      <welcome-file>default.jsp</welcome-file>
+    </welcome-file-list>
+ 
+    <filter>
+        <filter-name>struts2</filter-name>
+        <filter-class>
+            org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter
+        </filter-class>
+    </filter>
+ 
+    <filter-mapping>
+        <filter-name>struts2</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+     
+ 
+</web-app>
+
+
+
+ @Override
+   public String execute() {
+        Connection conn = null;
+
+        try {
+           String URL = "jdbc:oracle:thin:@localhost:1521:ORCL";
+           Class.forName("oracle.jdbc.driver.OracleDriver");
+           conn = DriverManager.getConnection(URL, "strutsdemo", "0000");
+           String sql = "SELECT name FROM login WHERE";
+           sql+=" NAME = ? AND PASSWORD = ?";
+           PreparedStatement ps = conn.prepareStatement(sql);
+           ps.setString(2, username);
+           ps.setString(3, password);
+           ResultSet rs = ps.executeQuery();
+           System.out.println("test" + rs);
+           while (rs.next()) {
+             username = rs.getString(1);
+             return "loginSuccess";
+//              ret = SUCCESS;
+           }
+        } catch (Exception e) {
+        } finally {
+           if (conn != null) {
+              try {
+                 conn.close();
+              } catch (Exception e) {
+              }
+           }
+        }
+//        return ret;
+        return "loginError";
+     }
+
+
+
+
+        @Override
+   public String execute() {
+       if (this.username == null && this.password == null) {
+           return "showForm";
+       }
+    
+       // User name và password hợp lệ.
+       else if ("admin".equals(this.username) && "admin123".equals(this.password)) {
+           return "loginSuccess";
+       }
+  
+       // Username hoặc password không đúng
+       else {
+           // Xem trong ApplicationResources.properties
+           String message= getText("error.login");
+            
+           addActionError(message);
+            
+           return "loginError";
+       }
+   }
+
+
+
+Cách confing 
+có 2 cách :
+cách 1 viết vào trong action
+
+@Namespace(value = "/web/info")
+@Action(value = "aboutUs", //
+        results = { //
+                @Result(name = "success", location = "/WEB-INF/pages/aboutUs.jsp") //
+        } //
+)
+
+cách 2: Viết thành file xml
+
+<struts>
+  <constant name="struts.devMode" value="true" />
+  <package name="helloworld" extends="struts-default">
+
+    <action name="loginaction" class="com.rikkeisoft.struts2logindb.action.LoginAction"
+      method="execute">
+      <result name="success">/WEB-INF/pages/success.jsp</result>
+      <result name="error">/WEB-INF/pages/error.jsp</result>
+    </action>
+
+  </package>
+
+</struts>
+
+
+các cách validation form trong struts
++ Custom Validation
+  lưu ý là chỉ có 1 giá trị được trả về  tức là ko thể đồng thời validate nhiều trường
+  dùng lệnh addActionError("bao loi o day"); 
+  để validate form và dùng <s:actionerror/> trong html để in ra lỗi
+
++ Input Validation
++ Ajax Validation
+
